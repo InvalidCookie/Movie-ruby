@@ -1,0 +1,5 @@
+Ver 0.2
+added:
+~creates data file if no data file exist
+~fixed empty data folder bugs
+~made status integer based

@@ -1,0 +1,3 @@
+version 0.1
+~Created program based on code academy's example
+~added read/write, saving and loading capability
