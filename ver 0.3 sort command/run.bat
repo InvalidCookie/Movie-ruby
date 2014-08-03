@@ -1,3 +1,2 @@
-@cd C:\Users\Jon\Documents\Ruby\Movie thing
-@C:\Ruby193\bin\ruby.exe main.rb 
+@C:\Ruby193\bin\ruby.exe Movie0.3.rb 
 @pause
