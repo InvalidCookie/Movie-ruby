@@ -36,7 +36,7 @@ puts 'What movie would you like to add? (type back to go back)'
 			end
 			if @movies[title.to_sym].nil?
 	while true
-		puts 'What is the status: (type cancel to cancel'
+		puts 'What is the status: (type cancel to cancel)'
 		puts '1 = Watched'
 		puts '2 = Watching'
 		puts '3 = Want to watch' 
