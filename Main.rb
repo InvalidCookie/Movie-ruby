@@ -1,94 +1,93 @@
 #!/usr/bin/env ruby
 require 'YAML'
-puts "version 0.3"
+#using 'shoes' for the gui
+Shoes.app do
+
+$console = stack
+$console.hide
+
+def start
+$console.append { inscription "version 0.3" }
 if_file = File.file?("movieData.yml")
 if if_file == false
-	puts 'data file not found.'
-	puts 'creating data file...'
+	$console.append { inscription 'data file not found.' }
+	$console.append { inscription 'creating data file...' }
 	File.new("movieData.yml", 'w+')
-	puts'data file created!'
+	$console.append { inscription 'data file created!' }
 else
-	puts 'data file found...'
+	$console.append { inscription 'data file found...' }
 end
-@movies = YAML::load(File.read('movieData.yml'))
-puts 'data file loaded!'
+$movies = YAML::load(File.read('movieData.yml'))
+$console.append { inscription 'data file loaded!' }
 file_zero = File.zero?("movieData.yml")
 	if file_zero == true
-	@movies = {:default => 1}
+	$movies = {:default => 1}
 	puts '~~~~~~~~~~~'
 	puts "No data was found movieData.yml so a default key and value has been made,"
 	puts "please add a movie to the list before deleting the 'default' movie."
 	puts "this program will not function without a default 'key' and 'value'"
 	puts '~~~~~~~~~~~'
 end
-
-def save
-	puts 'Saving...'
-	File.write('movieData.yml', YAML.dump(@movies))
-	puts 'Save successful!'
 end
 
 def add
-puts 'What movie would you like to add? (type back to go back)'
-		title = gets.chomp
-			if title == 'back'
-				main()
-			end
-			if @movies[title.to_sym].nil?
-	while true
-		puts 'What is the status: (type cancel to cancel)'
-		puts '1 = Watched'
-		puts '2 = Watching'
-		puts '3 = Want to watch' 
-		puts '4 = Stalled/Dropped?'
-		status = gets.chomp
+	Shoes.app do
+		title = edit_line text = 'Insert movie'
+		button "Enter" do
+			if $movies[title.text.to_sym].nil?
+				 status = list_box items: ["Watched", "Watching", "Want to Watch", "Stalled/Dropped"]
+				 button 'enter' do
 		case
-		when status == '1'
-			@movies[title.to_sym] = status.to_i
+		when status == 'Watched'
+			$movies[title.to_sym] = status.text
 			puts '%s has been added as Watched.' % [title]
-			main()
-		when status == '2'
-			@movies[title.to_sym] = status.to_i
+			close()
+		when status == 'Watching'
+			$movies[title.to_sym] = status.text
 			puts '%s has been added as Watching.' % [title]
-			main()
-		when status == '3'
-			@movies[title.to_sym] = status.to_i
+			close()
+		when status == 'Want to Watch'
+			$movies[title.to_sym] = status.text
 			puts '%s has been added as Want to Watch.' % [title]
-			main()
-		when status == '4'
-			@movies[title.to_sym] = status.to_i
+			close()
+		when status == 'Stalled/Dropped'
+			$movies[title.to_sym] = status.text
 			puts '%s has been added as Stalled/Dropped.' % [title]
-			main()
+			close()
 		else 
-			puts 'error, did you input a number 1-4?'
+			$console.append { inscription 'error, did you input a number 1-4?' }
 		end
 	end
  	  else
- 		  puts 'That movie already exist'
+ 		 $console.append { inscription 'That movie already exist' }
  	  end
+ 	end
+end
 end
 
 def list
-	@movies.each {|movie, status| 
-		if status == 1
+	Shoes.app do
+	$movies.each {|movie, status| 
+		if status == 1 or status == 'Watched'
 			status = 'Watched'
 		end
-		if status == 2
+		if status == 2 or status == 'Watching'
 			status = 'Watching'
 		end
-		if status == 3
+		if status == 3 or status == 'Want to Watch'
 		status = 'Want to Watch'
 		end
-		if status == 4
-			status = 'Stalled/dropped'
+		if status == 4 or status == 'Stalled/Dropped'
+			status = 'Stalled/Dropped'
 		end
-		puts '%s : %s' % [movie, status]}
+		para "%s : %s \n" % [movie, status]}
+end
 end
 
 def change
 puts 'What movie do you want to update?'
 	title = gets.chomp
-	if @movies[title.to_sym].nil? == false
+	if $movies[title.to_sym].nil? == false
 	while true
 		puts 'What is the new status:'
 		puts '1 = Watched'
@@ -99,19 +98,19 @@ puts 'What movie do you want to update?'
 		status = gets.chomp
 case
 	when status == '1'
-		@movies[title.to_sym] = status.to_i
+		$movies[title.to_sym] = status.to_i
 		puts '%s has been updated as Watched.' % [title]
 		main()
 	when status == '2'
-		@movies[title.to_sym] = status.to_i
+		$movies[title.to_sym] = status.to_i
 		puts '%s has been updated as Watching.' % [title]
 		main()
 	when status == '3'
-		@movies[title.to_sym] = status.to_i
+		$movies[title.to_sym] = status.to_i
 		puts '%s has been updated as Want to Watch.' % [title]
 		main()
 	when status == '4'
-		@movies[title.to_sym] = status.to_i
+		$movies[title.to_sym] = status.to_i
 		puts '%s has been updated as Stalled/Dropped.' % [title]
 		main()
 	when status == 'back'
@@ -128,19 +127,19 @@ end
 def delete
 	puts 'What movie are you deleting?'
 	title = gets.chomp
-	if @movies[title.to_sym].nil?
+	if $movies[title.to_sym].nil?
 		puts 'Movie not found'
 	else
-		@movies.delete(title.to_sym)
+		$movies.delete(title.to_sym)
 		puts '%s has been removed' % [title]
 	end
 end
 
 def exit
-	save()
-	puts ""
-	puts 'Thanks for using!'
-	Process.exit
+	$console.append { inscription "Saving..." }
+	File.write('movieData.yml', YAML.dump($movies))
+	$console.append { inscription "Save complete!" }
+	close()
 end
 
 def sort
@@ -152,14 +151,14 @@ while true
 		sort = gets.chomp.downcase
 		case sort
 		when 't'
-			@movies_sorted = @movies.sort_by {|title, status| title}
-			@movies = Hash[@movies_sorted.map {|key, value| [key, value]}]
-			puts '@movies sorted by Title!'
+			$movies_sorted = $movies.sort_by {|title, status| title}
+			$movies = Hash[$movies_sorted.map {|key, value| [key, value]}]
+			puts '$movies sorted by Title!'
 			main()
 		when 's'
-			@movies_sorted = @movies.sort_by {|title, status| status}
-			@movies = Hash[@movies_sorted.map {|key, value| [key, value]}]
-			puts '@movies sorted by Status!'
+			$movies_sorted = $movies.sort_by {|title, status| status}
+			$movies = Hash[$movies_sorted.map {|key, value| [key, value]}]
+			puts '$movies sorted by Status!'
 			main()
 		when 'back'
 			main()
@@ -169,35 +168,19 @@ while true
 	end
 end
 
-def main
-	while true
-	puts " "
-	puts "What would you like to do?"
-	puts "--Add"
-	puts "--List"
-	puts "--Change"
-	puts "--Delete"
-	puts "--Exit (saves and exits)"
-	puts "--Sort"
 
-	choice = gets.chomp.downcase
-	case choice
-		when 'add'
-			add()
-		when 'list'
-			list()
-		when 'change'
-			change()
-		when 'delete'
-				delete()
-		when 'sort'
-			sort()
-		when 'exit'
-			exit()
-		else
-			puts 'Error, unknown command'
-		end
-	end
+#executing of code begins here
+@badd = button "Add"
+@blist = button "List"
+@bchange = button "Change"
+@bdelete = button "Delete"
+@bsort = button "Sort"
+@bexit = button "Save and Exit"
+@btogcon = button "Toggle Console"
+
+@badd.click { add }
+@blist.click { @list.clear list }
+@bexit.click { exit }
+@btogcon.click { $console.toggle }
+start
 end
-
-main()
